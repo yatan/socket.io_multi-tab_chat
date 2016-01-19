@@ -49,6 +49,7 @@
 
 <script>
   var socket = io();
+  var nick = 'random';
   
 $( "#canal" ).click(function() {
   socket.emit('channel', 'hola');
@@ -74,15 +75,15 @@ $( "#canal" ).click(function() {
     }
     else
     {
-        socket.emit('general message', $('.m1').val());
+        socket.emit('general message',nick, $('.m1').val());
     }
     
     $('.m1').val('');
     return false;
   });
 
-socket.on('general message', function(msg){
-    $('#messages1').append($('<li>').text(msg));
+socket.on('general message', function(who, msg){
+    $('#messages1').append($('<li>').text('<'+who+'>'+msg));
 });
 
 socket.on('updatechat', function(room, msg){

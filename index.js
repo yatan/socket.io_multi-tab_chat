@@ -2,6 +2,11 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+setInterval(function() { 
+    io.emit('general message','bot', 'bot message');
+    }, 5000);
+
+
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
@@ -28,9 +33,9 @@ socket.on('channel', function(msg){
     //socket.broadcast.to(id).emit('my message', msg);
 });
   
-socket.on('general message', function(msg){
-    console.log('general message: ' + msg);
-    io.emit('general message', msg);
+socket.on('general message', function(who, msg){
+    console.log('general message: <'+who+'> '+ msg);
+    io.emit('general message', who, msg);
     //socket.broadcast.to(id).emit('my message', msg);
 });
   socket.on('disconnect', function(){
