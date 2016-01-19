@@ -12,26 +12,91 @@
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
     </style>
+  
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
   </head>
   <body>
-    <ul id="messages"></ul>
+    <div id="tabs">  
+        
+          <ul id="categorias">
+            <li><a href="#tabs-1">General</a></li>
+            <li><a href="#tabs-2">Proin dolor</a></li>
+            <li><a href="#tabs-3">Aenean lacinia</a></li>
+        </ul>
+   <div id="tabs-1">
+       <button id="canal" value="envi">dasdasd</button>    
+   <ul id="messages1"></ul>
     <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
+      <input class="m1" autocomplete="off" /><button>Send</button>
     </form>
+  </div>
+  <div id="tabs-2">
+    <ul id="messages2"></ul>
+    <form action="">
+      <input id="m2" autocomplete="off" /><button>Send</button>
+    </form>
+ </div>
+  <div id="tabs-3">
+    <p>Ayuda</p>
+  </div>
+  
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+
+
 <script>
   var socket = io();
+  
+$( "#canal" ).click(function() {
+  socket.emit('channel', 'hola');
+});
+  
   $('form').submit(function(){
-    socket.emit('chat message', $('#m').val());
-    $('#m').val('');
+    str = $('.m1').val();
+    if (str.indexOf("/") >= 0)
+    {
+        socket.emit('command', $('.m1').val());
+        if (str.indexOf("/join ") >= 0)
+        {
+            var res = str.slice(6);
+            $('#categorias').append("<li><a href='#tabs-4'>"+res+"</a></li>");
+            $('#tabs').append("<div id='tabs-4'><ul id="+res+"></ul>"
+            +'<form action="">'
+            +"<input class='m1' autocomplete='off' /><button>Send</button>"
+            +"</form></div>");
+            $(function() {
+                $( "#tabs" ).tabs("refresh");
+            });
+        }
+    }
+    else
+    {
+        socket.emit('general message', $('.m1').val());
+    }
+    
+    $('.m1').val('');
     return false;
   });
 
-  socket.on('chat message', function(msg){
-    $('#messages').append($('<li>').text(msg));
-  });
+socket.on('general message', function(msg){
+    $('#messages1').append($('<li>').text(msg));
+});
+
+socket.on('updatechat', function(room, msg){
+    $('#'+room).append($('<li>').text('<'+room+'>'+msg));
+});
+</script>
+
+    </div>
+  
+
+<script>
+    $(function() {
+        $( "#tabs" ).tabs();
+    });
 </script>
 
   </body>
