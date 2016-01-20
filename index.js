@@ -16,11 +16,13 @@ io.on('connection', function(socket){
   
 socket.on('command', function(msg){
     console.log('command: ' + msg);
-    if(msg == "/a")
+    if (msg.indexOf("/join ") >= 0)
     {
-        console.log('user join: test');
-        socket.join('test');
-        socket.room = 'test';
+        //al '/join canal' se queda -> "canal"
+        var canal = msg.slice(6);
+        console.log('user join: '+canal);
+        socket.join(canal);
+        socket.room = canal;
     }
     //io.emit('chat message', msg);
     //socket.broadcast.to(id).emit('my message', msg);
@@ -38,6 +40,13 @@ socket.on('general message', function(who, msg){
     io.emit('general message', who, msg);
     //socket.broadcast.to(id).emit('my message', msg);
 });
+
+socket.on('trade message', function(who, msg){
+    console.log('trade message: <'+who+'> '+ msg);
+    io.emit('trade message', who, msg);
+    //socket.broadcast.to(id).emit('my message', msg);
+});
+
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });

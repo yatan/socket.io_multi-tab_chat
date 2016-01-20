@@ -42,3 +42,4 @@ config.php
 .vscode/settings.json
 test.php
 node_modules
+typings

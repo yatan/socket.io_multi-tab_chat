@@ -5,8 +5,8 @@
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 95%; }
+      form input { border: 0; padding: 10px; width: 100%;  }
       form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { padding: 5px 10px; }
@@ -23,62 +23,68 @@
     <div id="tabs">  
         
           <ul id="categorias">
-            <li><a href="#tabs-1">General</a></li>
-            <li><a href="#tabs-2">Proin dolor</a></li>
-            <li><a href="#tabs-3">Aenean lacinia</a></li>
+            <li><a href="#tabs-1">#Global</a></li>
+            <li><a href="#tabs-2">#trade</a></li>
+            <!--<li><a href="#tabs-3">Ayuda</a></li> -->
         </ul>
    <div id="tabs-1">
-       <button id="canal" value="envi">dasdasd</button>    
+       <!--<button id="canal" value="envi">enviar texto a #test</button>-->    
    <ul id="messages1"></ul>
     <form action="">
-      <input class="m1" autocomplete="off" /><button>Send</button>
+      <input class="m1" id="global" autocomplete="off" />
     </form>
   </div>
   <div id="tabs-2">
     <ul id="messages2"></ul>
     <form action="">
-      <input id="m2" autocomplete="off" /><button>Send</button>
+      <input class="m1" id="trade" autocomplete="off" />
     </form>
  </div>
+ <!--
   <div id="tabs-3">
-    <p>Ayuda</p>
+    <p>Ayuda</p><br>
+    <li>/join "canal"</li> Entra al canal especificado.
   </div>
-  
+  -->
 
 
 
 <script>
   var socket = io();
-  var nick = 'random';
+  var nick = 'random_user';
   
 $( "#canal" ).click(function() {
   socket.emit('channel', 'hola');
 });
   
   $('form').submit(function(){
-    str = $('.m1').val();
+     var ref_this = $(document.activeElement).attr("id");
+     //alert (ref_this);
+    str = $('#'+ref_this).val();
     if (str.indexOf("/") >= 0)
     {
-        socket.emit('command', $('.m1').val());
+        socket.emit('command', str);
         if (str.indexOf("/join ") >= 0)
         {
-            var res = str.slice(6);
-            $('#categorias').append("<li><a href='#tabs-4'>"+res+"</a></li>");
-            $('#tabs').append("<div id='tabs-4'><ul id="+res+"></ul>"
-            +'<form action="">'
-            +"<input class='m1' autocomplete='off' /><button>Send</button>"
-            +"</form></div>");
-            $(function() {
-                $( "#tabs" ).tabs("refresh");
-            });
+            //al '/join canal' se queda -> "canal"
+            var canal = str.slice(6);
+            afegir(canal);
         }
+    }
+    else if(ref_this == 'global')
+    {
+        socket.emit('general message',nick, str);
+    }
+    else if(ref_this == 'trade')
+    {
+        socket.emit('trade message',nick, str);
     }
     else
     {
-        socket.emit('general message',nick, $('.m1').val());
+       // socket.emit('channel', $('#'+ref_this).val());
     }
     
-    $('.m1').val('');
+    $('#'+ref_this).val('');
     return false;
   });
 
@@ -86,9 +92,27 @@ socket.on('general message', function(who, msg){
     $('#messages1').append($('<li>').text('<'+who+'>'+msg));
 });
 
+socket.on('trade message', function(who, msg){
+    $('#messages2').append($('<li>').text('<'+who+'>'+msg));
+});
+
 socket.on('updatechat', function(room, msg){
     $('#'+room).append($('<li>').text('<'+room+'>'+msg));
 });
+
+
+function afegir(canal)
+{
+    $('#categorias').append("<li><a href='#tabs-"+canal+"'>"+canal+"</a></li>");
+    $('#tabs').append("<div id='tabs-"+canal+"'><ul id="+canal+"></ul>"
+    +'<form action="">'
+    +"<input class='m1' id='"+canal+"' autocomplete='off' /><button>Send</button>"
+    +"</form></div>");
+    $(function() {
+        $( "#tabs" ).tabs("refresh");
+    });
+}
+
 </script>
 
     </div>
